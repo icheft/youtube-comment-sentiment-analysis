@@ -11,3 +11,8 @@ pip install -r requirements.txt
 ```
 
 Then everytime you enter this repository, be sure to activate the virtual environment.
+
+## running streamlit app
+```
+streamlit run app.py
+```
