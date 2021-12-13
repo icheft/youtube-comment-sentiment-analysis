@@ -1,6 +1,6 @@
 from __future__ import print_function
-
-import argparse
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
 import io
 import json
 import os
@@ -9,6 +9,7 @@ import time
 
 import re
 import requests
+import pandas as pd
 
 YOUTUBE_VIDEO_URL = 'https://www.youtube.com/watch?v={youtube_id}'
 
@@ -105,16 +106,77 @@ def download_comments(youtube_id, sort_by=SORT_BY_RECENT, language=None, sleep=.
                         next(search_dict(item, 'buttonRenderer'))['command'])
 
         for comment in reversed(list(search_dict(response, 'commentRenderer'))):
+            # extract_vote(comment)
+            vote, c_type = extract_vote(comment)
             yield {'cid': comment['commentId'],
                    'text': ''.join([c['text'] for c in comment['contentText'].get('runs', [])]),
                    'time': comment['publishedTimeText']['runs'][0]['text'],
+                   'datetime': compute_time(comment['publishedTimeText']['runs'][0]['text']).strftime("%Y-%m-%d %H:%M:%S"),
                    'author': comment.get('authorText', {}).get('simpleText', ''),
                    'channel': comment['authorEndpoint']['browseEndpoint'].get('browseId', ''),
-                   'votes': comment.get('voteCount', {}).get('simpleText', '0'),
-                   'photo': comment['authorThumbnail']['thumbnails'][-1]['url'],
+                   # comment.get('voteCount', {}).get('simpleText', '0'),
+                   'type': c_type,
+                   'votes': vote,
                    'heart': next(search_dict(comment, 'isHearted'), False)}
 
         time.sleep(sleep)
+
+
+def extract_vote(comment) -> tuple([int, str]):
+    # extracting vote the hard way
+    target_entry = comment['actionButtons']['commentActionButtonsRenderer'][
+        'likeButton']['toggleButtonRenderer']['accessibilityData']['accessibilityData']['label']
+    m = re.search('Like this comment along with', target_entry)
+    comment_type = 'comment'
+    if not m:
+        m = re.search('Like this reply along with', target_entry)
+        comment_type = 'reply'
+    vote_cnt = int(target_entry[m.end():].strip().split()[
+        0].replace(',', ''))
+    return vote_cnt, comment_type
+
+
+def compute_time(time_txt):
+    """
+    Get a datetime object or a int() Epoch timestamp and return a
+    pretty string like 'an hour ago', 'Yesterday', '3 months ago',
+    'just now', etc
+
+    years, months, weeks, days, hours, minutes, seconds, microseconds
+    """
+    if "second" in time_txt:
+        delta = int(time_txt.split()[0])
+        time = datetime.now() - relativedelta(seconds=delta)
+    elif "minute" in time_txt:
+        delta = int(time_txt.split()[0])
+        time = datetime.now() - relativedelta(minutes=delta)
+
+    elif "hour" in time_txt:
+        delta = int(time_txt.split()[0])
+        time = datetime.now() - relativedelta(hours=delta)
+
+    elif "yesterday" in time_txt.lower():
+        time = datetime.now() - relativedelta(days=1)
+
+    elif "day" in time_txt:
+        delta = int(time_txt.split()[0])
+        time = datetime.now() - relativedelta(days=delta)
+
+    elif "week" in time_txt:
+        delta = int(time_txt.split()[0])
+        time = datetime.now() - relativedelta(weeks=delta)
+
+    elif "month" in time_txt:
+        delta = int(time_txt.split()[0])
+        time = datetime.now() - relativedelta(months=delta)
+
+    elif "year" in time_txt:
+        delta = int(time_txt.split()[0])
+        time = datetime.now() - relativedelta(years=delta)
+    else:
+        time = datetime.now()
+
+    return time
 
 
 def search_dict(partial, search_key):
@@ -132,46 +194,25 @@ def search_dict(partial, search_key):
                 stack.append(value)
 
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(add_help=False, description=(
-        'Download Youtube comments without using the Youtube API'))
-    parser.add_argument('--help', '-h', action='help',
-                        default=argparse.SUPPRESS, help='Show this help message and exit')
-    parser.add_argument(
-        '--youtubeid', '-y', help='ID of Youtube video for which to download the comments')
-    parser.add_argument(
-        '--output', '-o', help='Output filename (output format is line delimited JSON)')
-    parser.add_argument('--limit', '-l', type=int,
-                        help='Limit the number of comments')
-    parser.add_argument('--language', '-a', type=str, default=None,
-                        help='Language for Youtube generated text (e.g. en)')
-    parser.add_argument('--sort', '-s', type=int, default=SORT_BY_RECENT,
-                        help='Whether to download popular (0) or recent comments (1). Defaults to 1')
+def download_helper(youtubeID: str = '', limit: int = None, language: str = 'en', sort: int = SORT_BY_RECENT, output: str = None):
 
-    try:
-        args = parser.parse_args() if argv is None else parser.parse_args(argv)
-
-        youtube_id = args.youtubeid
-        output = args.output
-        limit = args.limit
-
-        if not youtube_id or not output:
-            parser.print_usage()
-            raise ValueError(
-                'you need to specify a Youtube ID and an output filename')
-
+    if output is not None:
         if os.sep in output:
-            outdir = os.path.dirname(output)
+            outdir = os.path.dirname()
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
 
-        print('Downloading Youtube comments for video:', youtube_id)
-        count = 0
+    print(f'Downloading Youtube comments for video: {youtubeID}')
+    count = 0
+    all_comments = []
+    start_time = time.time()
+
+    if output is not None:
         with io.open(output, 'w', encoding='utf8') as fp:
             sys.stdout.write('Downloaded %d comment(s)\r' % count)
             sys.stdout.flush()
             start_time = time.time()
-            for comment in download_comments(youtube_id, args.sort, args.language):
+            for comment in download_comments(youtubeID, sort, language):
                 comment_json = json.dumps(comment, ensure_ascii=False)
                 print(comment_json.decode(
                     'utf-8') if isinstance(comment_json, bytes) else comment_json, file=fp)
@@ -180,12 +221,25 @@ def main(argv=None):
                 sys.stdout.flush()
                 if limit and count >= limit:
                     break
-        print('\n[{:.2f} seconds] Done!'.format(time.time() - start_time))
-
-    except Exception as e:
-        print('Error:', str(e))
-        sys.exit(1)
+    for comment in download_comments(youtubeID, sort, language):
+        comment_json = json.dumps(comment, ensure_ascii=False)
+        sys.stdout.write('Downloaded %d comment(s)\r' % count)
+        sys.stdout.flush()
+        all_comments.append(pd.json_normalize(comment))
+        count += 1
+        sys.stdout.write('Downloaded %d comment(s)\r' % count)
+        sys.stdout.flush()
+        if limit and count >= limit:
+            break
+    df = pd.concat(all_comments, verify_integrity=True, ignore_index=True)
+    print(f"\n[{(time.time() - start_time):.2f} seconds] Done!")
+    return df
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    # SORT_BY_POPULAR = 0
+    # SORT_BY_RECENT = 1
+    youtubeID = 'OscqgBj1HCw'
+    df = download_helper(youtubeID=youtubeID, limit=100,
+                         language='en', sort=SORT_BY_POPULAR, output=None)
+    print(df.head())
