@@ -219,7 +219,7 @@ def fetch(youtubeID: str = '', limit: int = None, language: str = 'en', sort: in
                 count += 1
                 sys.stdout.write('Downloaded %d comment(s)\r' % count)
                 sys.stdout.flush()
-                if limit and count >= limit:
+                if limit is not None and count >= limit:
                     break
     for comment in download_comments(youtubeID, sort, language):
         comment_json = json.dumps(comment, ensure_ascii=False)
@@ -229,7 +229,7 @@ def fetch(youtubeID: str = '', limit: int = None, language: str = 'en', sort: in
         count += 1
         sys.stdout.write('Downloaded %d comment(s)\r' % count)
         sys.stdout.flush()
-        if limit and count >= limit:
+        if limit is not None and count >= limit:
             break
     df = pd.concat(all_comments, verify_integrity=True, ignore_index=True)
     print(f"\n[{(time.time() - start_time):.2f} seconds] Done!")
