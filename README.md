@@ -15,7 +15,7 @@ Then every time you enter this repository, be sure to activate the virtual envir
 ## Data Fetching
 
 ```py
-import yt_downloader
+import yt_helper
 
 SORT_BY_POPULAR = 0
 SORT_BY_RECENT = 1
@@ -26,7 +26,7 @@ limit = 100
 sort = SORT_BY_POPULAR
 output = None  # do not write out files
 
-df = yt_downloader.comment.download_helper(youtubeID=youtubeID, limit=limit,
+df = yt_helper.comment.fetch(youtubeID=youtubeID, limit=limit,
                                             language='en', sort=sort, output=output)
 print(df.head())
 ```

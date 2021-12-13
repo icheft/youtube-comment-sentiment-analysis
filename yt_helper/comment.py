@@ -194,7 +194,7 @@ def search_dict(partial, search_key):
                 stack.append(value)
 
 
-def download_helper(youtubeID: str = '', limit: int = None, language: str = 'en', sort: int = SORT_BY_RECENT, output: str = None):
+def fetch(youtubeID: str = '', limit: int = None, language: str = 'en', sort: int = SORT_BY_RECENT, output: str = None):
 
     if output is not None:
         if os.sep in output:
@@ -240,6 +240,6 @@ if __name__ == "__main__":
     # SORT_BY_POPULAR = 0
     # SORT_BY_RECENT = 1
     youtubeID = 'OscqgBj1HCw'
-    df = download_helper(youtubeID=youtubeID, limit=100,
-                         language='en', sort=SORT_BY_POPULAR, output=None)
+    df = fetch(youtubeID=youtubeID, limit=100,
+               language='en', sort=SORT_BY_POPULAR, output=None)
     print(df.head())

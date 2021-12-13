@@ -1,4 +1,4 @@
-import yt_downloader
+import yt_helper
 SORT_BY_POPULAR = 0
 SORT_BY_RECENT = 1
 
@@ -8,6 +8,6 @@ if __name__ == '__main__':
     sort = SORT_BY_POPULAR
     output = None  # do not write out files
 
-    df = yt_downloader.comment.download_helper(youtubeID=youtubeID, limit=limit,
-                                               language='en', sort=sort, output=output)
+    df = yt_helper.comment.fetch(youtubeID=youtubeID, limit=limit,
+                                 language='en', sort=sort, output=output)
     print(df.head())
