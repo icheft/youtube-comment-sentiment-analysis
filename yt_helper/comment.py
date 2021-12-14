@@ -8,8 +8,21 @@ import sys
 import time
 
 import re
+from pandas.core.frame import DataFrame
 import requests
 import pandas as pd
+import numpy as np
+
+# use to remove emojis
+import demoji
+
+# use to detect language and reserve english data only
+from langdetect import detect
+
+# use to do sentiment labeling
+from textblob import TextBlob
+
+import matplotlib.pyplot as plt
 
 YOUTUBE_VIDEO_URL = 'https://www.youtube.com/watch?v={youtube_id}'
 
@@ -235,7 +248,41 @@ def fetch(youtubeID: str = '', limit: int = None, language: str = 'en', sort: in
     print(f"\n[{(time.time() - start_time):.2f} seconds] Done!")
     return df
 
+def preprocessing(df: DataFrame):
 
+    # drop duplicate text
+    unique_df = df.drop_duplicates(subset=['text'])
+    
+    # remove emojis
+    unique_df['demoji_text'] = unique_df['text'].apply(lambda x: demoji.replace(x, ""))
+
+    # detect english text
+    unique_df['language'] = np.nan
+    count = 0
+    for i in range(0, len(unique_df)):
+        temp = unique_df['demoji_text'].iloc[i]
+        count += 1
+        try:
+            unique_df['language'].iloc[i] = detect(temp)
+        except:
+            unique_df['language'].iloc[i] = "error"
+    
+
+    # using regex to remove brakcets and special characters
+    regex = r"[^0-9A-Za-z'\t]"
+    copy = unique_df.copy()
+
+    copy['reg'] = copy['demoji_text'].apply(lambda x: re.findall(regex, x))
+    copy['regular_text'] = copy['demoji_text'].apply(lambda x: re.sub(regex, " ", x))
+
+    dataset = copy[['cid', 'votes', 'heart', 'regular_text']].copy()
+
+    # data labeling
+    dataset['polarity'] = dataset['regular_text'].apply(lambda x: TextBlob(x).polarity)
+    dataset['pol_category'] = dataset['polarity'].apply(lambda x: 1 if x > 0 else 0 if x == 0 else -1)
+    return dataset
+
+    
 if __name__ == "__main__":
     # SORT_BY_POPULAR = 0
     # SORT_BY_RECENT = 1
