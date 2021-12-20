@@ -16,6 +16,9 @@ import numpy as np
 # use to remove emojis
 import demoji
 
+# use to transfer emojis to words
+import emoji
+
 # use to detect language and reserve english data only
 from langdetect import detect
 
@@ -248,13 +251,14 @@ def fetch(youtubeID: str = '', limit: int = None, language: str = 'en', sort: in
     print(f"\n[{(time.time() - start_time):.2f} seconds] Done!")
     return df
 
-def preprocessing(df: DataFrame):
+def preprocessing(df: DataFrame, emoji_to_word: bool):
 
-    # drop duplicate text
-    unique_df = df.drop_duplicates(subset=['text'])
+    # drop duplicate comments with same cid
+    unique_df = df.drop_duplicates(subset=['cid'])
     
     # remove emojis
-    unique_df['demoji_text'] = unique_df['text'].apply(lambda x: demoji.replace(x, ""))
+    if(emoji_to_word) : unique_df['demoji_text'] = unique_df['text'].apply(lambda x: emoji.demojize(x, delimiters=("", "")).replace("_", " "))
+    else: unique_df['demoji_text'] = unique_df['text'].apply(lambda x: demoji.replace(x, ""))
 
     # detect english text
     unique_df['language'] = np.nan
