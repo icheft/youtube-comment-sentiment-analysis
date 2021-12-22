@@ -8,7 +8,6 @@ import sys
 import time
 
 import re
-from pandas.core.frame import DataFrame
 import requests
 import pandas as pd
 import numpy as np
@@ -251,7 +250,7 @@ def fetch(youtubeID: str = '', limit: int = None, language: str = 'en', sort: in
     print(f"\n[{(time.time() - start_time):.2f} seconds] Done!")
     return df
 
-def preprocessing(df: DataFrame, emoji_to_word: bool):
+def preprocessing(df: pd.DataFrame, emoji_to_word: bool):
 
     # drop duplicate comments with same cid
     unique_df = df.drop_duplicates(subset=['cid'])
