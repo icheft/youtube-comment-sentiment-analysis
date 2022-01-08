@@ -68,8 +68,8 @@ def download_metadata(youtube_id, language=None):
     section = next(search_dict(data, 'playerOverlayVideoDetailsRenderer'))
     title = section['title']['simpleText']
     channel_name = section['subtitle']['runs'][0]['text']
-    view_count = int(re.findall(
-        r'\d+(?:,\d+)?', section['subtitle']['runs'][-1]['text'])[0].replace(',', ''))
+    view_count = int(''.join(re.findall(
+        r'\d+(?:,\d+)?', section['subtitle']['runs'][-1]['text'])).replace(',', ''))
 
     meta_data = namedtuple('metadata', ['title', 'channel_name', 'view_count'])
     meta_data = meta_data(
@@ -103,5 +103,5 @@ def fetch(youtubeID: str = ''):
 if __name__ == "__main__":
     # SORT_BY_POPULAR = 0
     # SORT_BY_RECENT = 1
-    youtubeID = 'a2nh9tm5oU8'
+    youtubeID = 'CZFQPupSEnk'
     print(fetch(youtubeID=youtubeID))
