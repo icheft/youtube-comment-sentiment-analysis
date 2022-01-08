@@ -278,10 +278,13 @@ def preprocessing(df: pd.DataFrame, emoji_to_word: bool):
     copy['reg'] = copy['demoji_text'].apply(lambda x: re.findall(regex, x))
     copy['regular_text'] = copy['demoji_text'].apply(lambda x: re.sub(regex, " ", x))
 
-    dataset = copy[['cid', 'votes', 'heart', 'regular_text']].copy()
+    # trim the regular_text
+    copy['comment'] = copy['regular_text'].str.strip()
+
+    dataset = copy[['cid', 'votes', 'heart', 'comment']].copy()
 
     # data labeling
-    dataset['polarity'] = dataset['regular_text'].apply(lambda x: TextBlob(x).polarity)
+    dataset['polarity'] = dataset['comment'].apply(lambda x: TextBlob(x).polarity)
     dataset['pol_category'] = dataset['polarity'].apply(lambda x: 1 if x > 0 else 0 if x == 0 else -1)
     return dataset
 
