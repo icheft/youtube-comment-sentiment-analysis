@@ -16,7 +16,7 @@ SORT_BY_RECENT = 1
 # Set page title and favicon.
 st.set_page_config(
     page_title="YouTube Comment Analysis",
-    page_icon=LOGO_URL, layout="wide",
+    page_icon=LOGO_URL, layout="centered",
     menu_items={
         'Get Help': None,
         'Report a bug': None,
