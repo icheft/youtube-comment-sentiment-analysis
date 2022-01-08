@@ -97,30 +97,14 @@ def app():
         options['emoji'] = st.checkbox('Consider emoji as a feature')
 
     if raw_url:
-        row3_spacer1, row3_1, row3_spacer2 = st.columns((.1, 3.2, .1))
         youtubeID = yt_helper.parser.url(raw_url)  # 0zM3nApSvMg
         df = get_data(youtubeID=youtubeID,
                       limit=options['limit'], options=options)
         tmp_df = df.copy()
 
-        with row3_1:
-            st.write(tmp_df.head())
-
-        row4_spacer1, row4_1, _, row4_2, row4_spacer1 = st.columns(
-            (.09, 1.2, .1, 1.2, .1))
-
+        row4_spacer1, row4_1, row4_spacer2 = st.columns((.1, 3.2, .1))
         with row4_1:
-            st.download_button(
-                label=f"📓 Download (raw_data.csv)",
-                data=yt_helper.utils.convert_df(tmp_df),
-                file_name=f'raw_data.csv',
-                mime='text/csv',
-            )
-
-        row5_spacer1, row5_1, row5_spacer2 = st.columns((.1, 3.2, .1))
-        with row5_1:
             metadata = yt_helper.metadata.fetch(youtubeID=youtubeID)
-            st.write(metadata.title)
             st.markdown(f"""### Analyzing *"{metadata.title}"*
 ##### {metadata.view_count:,d} views · {metadata.channel_name}""")
             tmp_df['label'] = tmp_df['pol_category'].apply(
@@ -131,6 +115,22 @@ def app():
             fig = pie_chart(label_cnt, values='pol_category',
                             names='label', color='label')
             st.plotly_chart(fig, use_container_width=True)
+
+        row5_spacer1, row5_1, row5_spacer2 = st.columns((.1, 3.2, .1))
+
+        with row5_1:
+            st.write(tmp_df.head())
+
+        row6_spacer1, row6_1, _, row6_2, row6_spacer1 = st.columns(
+            (.09, 1.2, .1, 1.2, .1))
+
+        with row6_1:
+            st.download_button(
+                label=f"📓 Download (raw_data.csv)",
+                data=yt_helper.utils.convert_df(tmp_df),
+                file_name=f'raw_data.csv',
+                mime='text/csv',
+            )
 
 
 if __name__ == '__main__':
