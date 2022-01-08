@@ -36,6 +36,16 @@ df = yt_helper.comment.fetch(youtubeID=youtubeID, limit=limit,
 print(df.head())
 ```
 
+#### Metadata
+
+```py
+import yt_helper
+
+metadata = yt_helper.metadata.fetch(youtubeID=youtubeID)
+
+# print(metadata.title, metadata.channel_name, metadata.view_count)
+print(metadata)
+```
 
 ### URL Parsing
 

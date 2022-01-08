@@ -1,4 +1,5 @@
 from . import (
     comment,
-    parser,
+    metadata,
+    parser
 )
