@@ -118,14 +118,19 @@ def app():
             )
 
         row5_spacer1, row5_1, row5_spacer2 = st.columns((.1, 3.2, .1))
-        tmp_df['label'] = tmp_df['pol_category'].apply(
-            lambda x: 'Like' if x == 1 else 'Dislike' if x == -1 else 'Neutral')
-        label_cnt = tmp_df.groupby(
-            'label').count().reset_index('label')
-        # st.write(label_cnt)
-        fig = pie_chart(label_cnt, values='pol_category',
-                        names='label', color='label')
-        st.plotly_chart(fig, use_container_width=True)
+        with row5_1:
+            metadata = yt_helper.metadata.fetch(youtubeID=youtubeID)
+            st.write(metadata.title)
+            st.markdown(f"""### Analyzing *"{metadata.title}"*
+##### {metadata.view_count:,d} views · {metadata.channel_name}""")
+            tmp_df['label'] = tmp_df['pol_category'].apply(
+                lambda x: 'Like' if x == 1 else 'Dislike' if x == -1 else 'Neutral')
+            label_cnt = tmp_df.groupby(
+                'label').count().reset_index('label')
+            # st.write(label_cnt)
+            fig = pie_chart(label_cnt, values='pol_category',
+                            names='label', color='label')
+            st.plotly_chart(fig, use_container_width=True)
 
 
 if __name__ == '__main__':
