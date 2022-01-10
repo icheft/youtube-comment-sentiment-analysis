@@ -83,3 +83,12 @@ Parameters explanation:
 1. `df` : raw dataframe haven't been preprocessed yet. (Just fetched by crawler)
 2. `emoji_to_word` : If you want to eliminate emoticons entirely, set to `False` . If you want to transfer emoticons to words, set to `True`. 
 
+### taskBasedModel
+`model_Dragons.dl_taskbased` is a function that takes youtubeID as input and returns sentiment ratios as output.
+
+```py
+from model_Dragons.dl_taskbased import dl_taskbased
+
+dl_taskbased(youtubeID = "OscqgBj1HCw") # output: (positive ratio, negative ratio) 
+```
+
