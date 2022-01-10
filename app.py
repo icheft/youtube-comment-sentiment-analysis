@@ -7,6 +7,7 @@ import os
 from streamlit_lottie import st_lottie
 import requests
 import streamlit as st
+from model.dl_taskbased import dl_taskbased, dl_taskbased_V2
 
 LOGO_URL = "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/313/fire_1f525.png"
 SORT_BY_POPULAR = 0
@@ -16,7 +17,7 @@ SORT_BY_RECENT = 1
 # Set page title and favicon.
 st.set_page_config(
     page_title="YouTube Comment Analysis",
-    page_icon=LOGO_URL, layout="centered",
+    page_icon=LOGO_URL, layout="wide",
     menu_items={
         'Get Help': None,
         'Report a bug': None,
@@ -32,7 +33,7 @@ def load_lottieurl(url: str):
     return r.json()
 
 
-def pie_chart(df, values='tip', names='day', color='day'):
+def pie_chart(df, values='count', names='labelname', color='labelname'):
     color_discrete_map = {'Like': '#FA0606',
                           'Dislike': '#FC8C94',
                           'Neutral': '#848484', }
@@ -41,11 +42,16 @@ def pie_chart(df, values='tip', names='day', color='day'):
                  color_discrete_map=color_discrete_map)
     fig.update_traces(hoverinfo='label+percent', textinfo='percent+label', textfont_size=20,
                       marker_line=dict(color='#000000', width=2))
-    fig.update_layout(margin=dict(t=10, b=10, l=10, r=10), height=400)
+    fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=300, legend=dict(
+        orientation="h",
+        yanchor="middle",
+        y=-0.25,
+        xanchor="center", x=0.5))
+
     return fig
 
 
-@ st.cache
+@st.experimental_memo(ttl=3600)
 def get_data(youtubeID="", limit=100, options={}):
     sort = SORT_BY_POPULAR
     output = None  # do not write out files
@@ -56,8 +62,8 @@ def get_data(youtubeID="", limit=100, options={}):
     processed_dataset = yt_helper.comment.preprocessing(
         df=df, emoji_to_word=options['emoji'])
 
-    if not options['neutral']:
-        processed_dataset = processed_dataset[processed_dataset['pol_category'] != 0]
+    # if not options['neutral']:
+    #     processed_dataset = processed_dataset[processed_dataset['pol_category'] != 0]
     if options['vote']:
         processed_dataset = processed_dataset[processed_dataset['votes'] > 0]
 
@@ -92,7 +98,7 @@ def app():
         options['limit'] = st.number_input(
             'Comment limit you wish to set (the lower the limit is, the faster the analysis will be)', value=100, min_value=1)
     with row3_2:
-        options['neutral'] = st.checkbox('Include neutral comments')
+        # options['neutral'] = st.checkbox('Include neutral comments')
         options['vote'] = st.checkbox('Include only comments with votes')
         options['emoji'] = st.checkbox('Consider emoji as a feature')
 
@@ -102,35 +108,99 @@ def app():
                       limit=options['limit'], options=options)
         tmp_df = df.copy()
 
-        row4_spacer1, row4_1, row4_spacer2 = st.columns((.1, 3.2, .1))
-        with row4_1:
+        _, row4_1_pre, _ = st.columns((.1, 3.2, .1))
+        with row4_1_pre:
             metadata = yt_helper.metadata.fetch(youtubeID=youtubeID)
             st.markdown(f"""### Analyzing *"{metadata.title}"*
 ##### {metadata.view_count:,d} views · {metadata.channel_name}""")
+
+        row4_spacer1, row4_1, row4_2, row4_3, row4_spacer2 = st.columns(
+            (.11, 1.066667, 1.066667, 1.066667, .11))
+
+        with row4_1:
+
+            # DONE: Textblob
+            st.markdown("##### Textblob")
             tmp_df['label'] = tmp_df['pol_category'].apply(
                 lambda x: 'Like' if x == 1 else 'Dislike' if x == -1 else 'Neutral')
+
+            # groupby label then drop Neutral
             label_cnt = tmp_df.groupby(
-                'label').count().reset_index('label')
+                'label').count()\
+                .reset_index('label')
+            # TODO: open option?
+            # include_neutral = st.checkbox("Include neutral comments")
+            # if include_neutral:
+            #     label_cnt = tmp_df.groupby(
+            #         'label').count()\
+            #         .reset_index('label')
+            # else:
+            #     label_cnt = tmp_df.groupby(
+            #         'label').count()\
+            #         .drop(['Neutral'], axis=0)\
+            #         .reset_index('label')
             # st.write(label_cnt)
             fig = pie_chart(label_cnt, values='pol_category',
                             names='label', color='label')
             st.plotly_chart(fig, use_container_width=True)
+            intro_textblob = st.expander('Textblob Model Info 💁🏽‍♂️')
+            with intro_textblob:
+                st.markdown(
+                    "Model Intro...")
 
-        row5_spacer1, row5_1, row5_spacer2 = st.columns((.1, 3.2, .1))
+        with row4_2:
+            st.markdown("##### TaskBased")
+            # output: (positive ratio, negative ratio)
+            pos, neg = dl_taskbased_V2(processed_dataset=tmp_df.drop(
+                ['label'], axis=1), emoji=options['emoji'])
 
-        with row5_1:
-            st.write(tmp_df.head())
+            plt_df = pd.DataFrame(data={'label': ['Like', 'Dislike'], 'cnt': [
+                                  pos * options['limit'], neg * options['limit']]})
+            fig = pie_chart(plt_df, values='cnt',
+                            names='label', color='label')
 
-        row6_spacer1, row6_1, _, row6_2, row6_spacer1 = st.columns(
-            (.09, 1.2, .1, 1.2, .1))
+            st.plotly_chart(fig, use_container_width=True)
 
-        with row6_1:
-            st.download_button(
-                label=f"📓 Download (raw_data.csv)",
-                data=yt_helper.utils.convert_df(tmp_df),
-                file_name=f'raw_data.csv',
-                mime='text/csv',
-            )
+            intro_taskbased = st.expander('TaskBased Model Info 💁🏾‍♂️')
+            with intro_taskbased:
+                st.markdown(
+                    "Model Intro...")
+
+        with row4_3:
+            # TODO: Liu
+            st.markdown("##### ThirdModel")
+
+            pos, neg = dl_taskbased_V2(processed_dataset=tmp_df.drop(
+                ['label'], axis=1), emoji=options['emoji'])
+
+            plt_df = pd.DataFrame(data={'label': ['Like', 'Dislike'], 'cnt': [
+                                  pos * options['limit'], neg * options['limit']]})
+            fig = pie_chart(plt_df, values='cnt',
+                            names='label', color='label')
+
+            st.plotly_chart(fig, use_container_width=True)
+
+            intro_thirdmodel = st.expander('ThirdModel Model Info 💁🏻‍♀️')
+            with intro_thirdmodel:
+                st.markdown(
+                    "Model Intro...")
+
+        # FIXME: redundant
+        # row5_spacer1, row5_1, row5_spacer2 = st.columns((.1, 3.2, .1))
+
+        # with row5_1:
+        #     st.write(tmp_df.head())
+
+        # row6_spacer1, row6_1, _, row6_2, row6_spacer1 = st.columns(
+        #     (.09, 1.2, .1, 1.2, .1))
+
+        # with row6_1:
+        #     st.download_button(
+        #         label=f"📓 Download (raw_data.csv)",
+        #         data=yt_helper.utils.convert_df(tmp_df),
+        #         file_name=f'raw_data.csv',
+        #         mime='text/csv',
+        #     )
 
 
 if __name__ == '__main__':
