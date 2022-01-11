@@ -1,16 +1,10 @@
 from __future__ import print_function
-from dateutil.relativedelta import relativedelta
 from collections import namedtuple
-from datetime import datetime
-import io
 import json
-import os
-import sys
 import time
 
 import re
 import requests
-import pandas as pd
 
 YOUTUBE_VIDEO_URL = 'https://www.youtube.com/watch?v={youtube_id}'
 
