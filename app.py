@@ -1,4 +1,5 @@
 import plotly.express as px
+import re
 import plotly.graph_objects as go
 import io
 import pandas as pd
@@ -120,7 +121,7 @@ def app():
         with row4_1:
 
             # DONE: Textblob
-            st.markdown("##### Textblob")
+            st.markdown("##### TextBlob")
             tmp_df['label'] = tmp_df['pol_category'].apply(
                 lambda x: 'Like' if x == 1 else 'Dislike' if x == -1 else 'Neutral')
 
