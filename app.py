@@ -43,10 +43,10 @@ def pie_chart(df, values='count', names='labelname', color='labelname'):
                  color_discrete_map=color_discrete_map)
     fig.update_traces(hoverinfo='label+percent', textinfo='percent+label', textfont_size=20,
                       marker_line=dict(color='#000000', width=2))
-    fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=300, legend=dict(
+    fig.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=320, legend=dict(
         orientation="h",
         yanchor="middle",
-        y=-0.25,
+        y=-0.3,
         xanchor="center", x=0.5))
 
     return fig
@@ -88,7 +88,7 @@ def app():
     row2_spacer1, row2_1, row2_spacer2 = st.columns((.1, 3.2, .1))
     with row2_1:
         raw_url = st.text_input(
-            "Input a YouTube video link (e.g. https://www.youtube.com/watch?v=0zM3nApSvMg) or a YouTube video ID (e.g. 0zM3nApSvMg)")
+            "Input a YouTube video link (e.g. https://www.youtube.com/watch?v=X2vAabgKiuM) or a YouTube video ID (e.g. X2vAabgKiuM)")
         need_help = st.expander('Need help? 👉')
         with need_help:
             st.markdown(
