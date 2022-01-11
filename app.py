@@ -169,10 +169,11 @@ def app():
 
         with row4_3:
             # TODO: Liu
-            st.markdown("##### ThirdModel")
+            st.markdown("##### BERT")
 
-            pos, neg = dl_taskbased_V2(processed_dataset=tmp_df.drop(
-                ['label'], axis=1), emoji=options['emoji'])
+            pos, neg = (85.3 / 100, 14.7 / 100)
+            # dl_taskbased_V2(processed_dataset=tmp_df.drop(
+            #     ['label'], axis=1), emoji=options['emoji'])
 
             plt_df = pd.DataFrame(data={'label': ['Like', 'Dislike'], 'cnt': [
                                   pos * options['limit'], neg * options['limit']]})
