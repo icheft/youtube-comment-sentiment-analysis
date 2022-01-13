@@ -57,10 +57,8 @@ def pie_chart(df, values='count', names='labelname', color='labelname'):
 def get_data(youtubeID="", limit=100, options={}):
     sort = SORT_BY_POPULAR
     output = None  # do not write out files
-
     df = yt_helper.comment.fetch(youtubeID=youtubeID, limit=limit,
                                  language='en', sort=sort, output=output)
-
     processed_dataset = yt_helper.comment.preprocessing(
         df=df, emoji_to_word=options['emoji'])
 
@@ -108,6 +106,7 @@ def app():
         youtubeID = yt_helper.parser.url(raw_url)  # 0zM3nApSvMg
         df = get_data(youtubeID=youtubeID,
                       limit=options['limit'], options=options)
+        options['limit'] = df.shape[0]
         tmp_df = df.copy()
 
         _, row4_1_pre, _ = st.columns((.1, 3.2, .1))
@@ -148,7 +147,7 @@ def app():
             intro_textblob = st.expander('Textblob Model Info 💁🏽‍♂️')
             with intro_textblob:
                 st.markdown(
-                    "Model Intro...")
+                    """We'd found some awesome projects for processing textual data, TextBlob being one of them. [The official documentation](https://textblob.readthedocs.io/en/dev/) states that TextBlob is based on NLTK and [pattern](https://analyticsindiamag.com/hands-on-guide-to-pattern-a-python-tool-for-effective-text-processing-and-data-mining/). Simply make a sentence (in our use case, a "comment") to a TextBlob object, and we can get the polarity for the particular sentence by calling the `polarity` attribute of the object.""")
 
         with row4_2:
             st.markdown("##### TaskBased")
@@ -166,14 +165,13 @@ def app():
             intro_taskbased = st.expander('TaskBased Model Info 💁🏾‍♂️')
             with intro_taskbased:
                 st.markdown(
-                    "Model Intro...")
+                    """In this model, we adopt the fully connected network as model archistructure, and then use the IMDB dataset as training data. In the training process of binary sentimental classification (positive or negative), our model learns how to transfer texts to meaningful word embeddings. Therefore, we can then use the model to predict the sentiment of incoming youtube comments.""")
 
         with row4_3:
             # TODO: Liu
             st.markdown("##### BERT")
 
-            pos, neg = l_bert_V2(tmp_df.drop(
-                ['label'], axis=1), options['limit'])
+            pos, neg = l_bert_V2(tmp_df.drop(['label'], axis=1))
             # dl_taskbased_V2(processed_dataset=tmp_df.drop(
             #     ['label'], axis=1), emoji=options['emoji'])
 
@@ -184,11 +182,10 @@ def app():
 
             st.plotly_chart(fig, use_container_width=True)
 
-            intro_thirdmodel = st.expander('ThirdModel Model Info 💁🏻‍♀️')
+            intro_thirdmodel = st.expander('BERT + SVM Model Info 💁🏻‍♀️')
             with intro_thirdmodel:
                 st.markdown(
-                    "Model Intro...")
-
+                    """In this model, we use the IMDB movie reviews dataset as our training data. We then get the context-dependent embeddings from BERT. Hence, we can train the model only through the embeddings of [CLS]. In the training process of binary sentimental classification (positive or negative), our SVM model learns how to label each training data correctly.""")
         # FIXME: redundant
         # row5_spacer1, row5_1, row5_spacer2 = st.columns((.1, 3.2, .1))
 
