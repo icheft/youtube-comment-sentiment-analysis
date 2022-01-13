@@ -9,7 +9,6 @@ from streamlit_lottie import st_lottie
 import requests
 import streamlit as st
 from model.dl_taskbased import dl_taskbased, dl_taskbased_V2
-from model.l_bert import l_bert_V2
 from model.l_bert_mini import l_bert_V3
 
 LOGO_URL = "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/313/fire_1f525.png"
