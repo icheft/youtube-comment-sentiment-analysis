@@ -217,7 +217,8 @@ def fetch(youtubeID: str = '', limit: int = None, language: str = 'en', sort: in
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
 
-    print(f'Downloading Youtube comments for video: {youtubeID}')
+    print(f'Downloading {limit} Youtube comments for video: {youtubeID}')
+
     count = 0
     all_comments = []
     start_time = time.time()
@@ -250,14 +251,19 @@ def fetch(youtubeID: str = '', limit: int = None, language: str = 'en', sort: in
     print(f"\n[{(time.time() - start_time):.2f} seconds] Done!")
     return df
 
+
 def preprocessing(df: pd.DataFrame, emoji_to_word: bool):
 
     # drop duplicate comments with same cid
     unique_df = df.drop_duplicates(subset=['cid'])
-    
+
     # remove emojis
-    if(emoji_to_word) : unique_df['demoji_text'] = unique_df['text'].apply(lambda x: emoji.demojize(x, delimiters=("", "")).replace("_", " "))
-    else: unique_df['demoji_text'] = unique_df['text'].apply(lambda x: demoji.replace(x, ""))
+    if(emoji_to_word):
+        unique_df['demoji_text'] = unique_df['text'].apply(
+            lambda x: emoji.demojize(x, delimiters=("", "")).replace("_", " "))
+    else:
+        unique_df['demoji_text'] = unique_df['text'].apply(
+            lambda x: demoji.replace(x, ""))
 
     # detect english text
     unique_df['language'] = np.nan
@@ -269,14 +275,14 @@ def preprocessing(df: pd.DataFrame, emoji_to_word: bool):
             unique_df['language'].iloc[i] = detect(temp)
         except:
             unique_df['language'].iloc[i] = "error"
-    
 
     # using regex to remove brakcets and special characters
     regex = r"[^0-9A-Za-z'\t]"
     copy = unique_df.copy()
 
     copy['reg'] = copy['demoji_text'].apply(lambda x: re.findall(regex, x))
-    copy['regular_text'] = copy['demoji_text'].apply(lambda x: re.sub(regex, " ", x))
+    copy['regular_text'] = copy['demoji_text'].apply(
+        lambda x: re.sub(regex, " ", x))
 
     # trim the regular_text
     copy['comment'] = copy['regular_text'].str.strip()
@@ -284,11 +290,13 @@ def preprocessing(df: pd.DataFrame, emoji_to_word: bool):
     dataset = copy[['cid', 'votes', 'heart', 'comment']].copy()
 
     # data labeling
-    dataset['polarity'] = dataset['comment'].apply(lambda x: TextBlob(x).polarity)
-    dataset['pol_category'] = dataset['polarity'].apply(lambda x: 1 if x > 0 else 0 if x == 0 else -1)
+    dataset['polarity'] = dataset['comment'].apply(
+        lambda x: TextBlob(x).polarity)
+    dataset['pol_category'] = dataset['polarity'].apply(
+        lambda x: 1 if x > 0 else 0 if x == 0 else -1)
     return dataset
 
-    
+
 if __name__ == "__main__":
     # SORT_BY_POPULAR = 0
     # SORT_BY_RECENT = 1

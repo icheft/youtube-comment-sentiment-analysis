@@ -13,13 +13,14 @@ task_model = joblib.load('model/tiny-taskModel')
 pretrained_path = 'model/BERT-Tiny'
 
 
-def yt_comment_preprocess(processed_dataset, limit: int):
+def yt_comment_preprocess(processed_dataset):
     # processed_dataset = yt_helper.comment.preprocessing(
     #     df=df, emoji_to_word=emoji)
     test_data = processed_dataset['comment']
+
     embeddings_test = extract_embeddings(pretrained_path, test_data)
     x_test = []
-    for i in range(limit):
+    for i in range(len(test_data)):
         x_test.append(embeddings_test[i][0])
 
     return x_test
@@ -43,8 +44,9 @@ def predict_result(youtubeID):
     return positive_rate, nagative_rate
 
 
-def l_bert_V2(processed_dataset: pd.DataFrame, limit: int):
-    x_test = yt_comment_preprocess(processed_dataset, limit)
+def l_bert_V2(processed_dataset: pd.DataFrame):
+    # print('len: ', len(processed_dataset))
+    x_test = yt_comment_preprocess(processed_dataset)
     scaler = StandardScaler()
     X_test = scaler.fit_transform(x_test)
     X_test = np.array(X_test)
