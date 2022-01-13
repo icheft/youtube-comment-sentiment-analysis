@@ -1,3 +1,6 @@
+test/easy_wrapper*
+test/*raw*
+test/*.in
 data/*.json
 test/
 # Created by https://www.toptal.com/developers/gitignore/api/macos,windows,linux,python,venv,jupyternotebooks
