@@ -53,7 +53,8 @@ def pie_chart(df, values='count', names='labelname', color='labelname'):
     return fig
 
 
-@st.experimental_memo(ttl=3600)
+# @st.experimental_memo(ttl=3600)
+@st.cache(allow_output_mutation=True, ttl=600, max_entries=5)
 def get_data(youtubeID="", limit=100, options={}):
     sort = SORT_BY_POPULAR
     output = None  # do not write out files
@@ -79,7 +80,10 @@ def app():
 
     with row1_1:
         st.markdown(
-            "Not sure the quality of a YouTube video? Let's find out using the comment section of the video.")
+            """Not sure the quality of a YouTube video? Let's find out using the comment section of the video. 
+            
+Please note that this app is still in beta and may not work for all videos. **IF** you encounter an error while using the app, please report it to us. In the mean time, videos with massive views may be analyzed locally. Please check out the README for more information.
+            """)
         st.markdown(
             "**To begin, please enter the link to the YouTube video you wish to analyze** 👇")
 
