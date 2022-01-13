@@ -54,7 +54,8 @@ def pie_chart(df, values='count', names='labelname', color='labelname'):
 
 
 # @st.experimental_memo(ttl=3600)
-@st.cache(allow_output_mutation=True, ttl=600, max_entries=5)
+# @st.cache(allow_output_mutation=True, ttl=600, max_entries=5)
+@st.experimental_memo(ttl=600, max_entries=5)
 def get_data(youtubeID="", limit=100, options={}):
     sort = SORT_BY_POPULAR
     output = None  # do not write out files
