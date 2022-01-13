@@ -1,5 +1,8 @@
 demoji==1.1.0
 emoji==1.6.1
+joblib==1.0.1
+keras==2.7.0
+keras_bert==0.88.0
 langdetect==1.0.9
 matplotlib==3.4.3
 numpy==1.19.5
@@ -10,5 +13,6 @@ python_dateutil==2.8.2
 requests==2.26.0
 streamlit==1.3.1
 streamlit_lottie==0.0.3
+tensorflow==2.7.0
 textblob==0.17.1
 youtube_easy_api==0.2.2

@@ -9,6 +9,7 @@ from streamlit_lottie import st_lottie
 import requests
 import streamlit as st
 from model.dl_taskbased import dl_taskbased, dl_taskbased_V2
+from model.l_bert import l_bert_V2
 
 LOGO_URL = "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/313/fire_1f525.png"
 SORT_BY_POPULAR = 0
@@ -96,8 +97,8 @@ def app():
     row3_spacer1, row3_1, row3_spacer2, row3_2, row3_spacer3 = st.columns(
         (.1, 1.6, .1, 1.6, .1))
     with row3_1:
-        options['limit'] = st.number_input(
-            'Comment limit you wish to set (the lower the limit is, the faster the analysis will be)', value=100, min_value=1)
+        options['limit'] = int(st.number_input(
+            'Comment limit you wish to set (the lower the limit is, the faster the analysis will be)', value=100, min_value=1, step=1))
     with row3_2:
         # options['neutral'] = st.checkbox('Include neutral comments')
         options['vote'] = st.checkbox('Include only comments with votes')
@@ -171,7 +172,8 @@ def app():
             # TODO: Liu
             st.markdown("##### BERT")
 
-            pos, neg = (85.3 / 100, 14.7 / 100)
+            pos, neg = l_bert_V2(tmp_df.drop(
+                ['label'], axis=1), options['limit'])
             # dl_taskbased_V2(processed_dataset=tmp_df.drop(
             #     ['label'], axis=1), emoji=options['emoji'])
 
