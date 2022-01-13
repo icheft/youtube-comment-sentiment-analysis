@@ -3,7 +3,6 @@
 import joblib
 import yt_helper
 from keras_bert import extract_embeddings
-from sklearn.preprocessing import StandardScaler
 import pandas as pd
 import numpy as np
 import sys
