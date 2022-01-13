@@ -175,7 +175,6 @@ Please note that this app is still in beta and may not work for all videos. **IF
         with row4_3:
             # TODO: Liu
             st.markdown("##### BERT")
-
             pos, neg = l_bert_V3(tmp_df.drop(['label'], axis=1))
             # dl_taskbased_V2(processed_dataset=tmp_df.drop(
             #     ['label'], axis=1), emoji=options['emoji'])
