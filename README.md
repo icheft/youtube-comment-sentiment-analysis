@@ -1,4 +1,26 @@
-# IM 5054 Final Project 
+<h1 align="center">
+  <br>
+  <a href="https://share.streamlit.io/icheft/youtube-comment-sentiment-analysis/main/app.py"><img src="assets/img/youtube.png" alt="yt-logo" width="200"></a>
+  <br>
+  YouTube Comment Sentiment Analysis
+  <br>
+</h1>
+
+<h4 align="center">IM 5054 Final Project by Group 14</h4>
+
+<p align="center">
+  <a href="https://share.streamlit.io/icheft/youtube-comment-sentiment-analysis/main/app.py">
+    <img src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg"
+         alt="Open in Streamlit">
+  </a>
+</p>
+
+<p align="center">
+  <a href="#demo">Environment</a> •
+  <a href="#getting-started">YT Helper</a> •
+  <a href="#how-to-use">Models</a> •
+  <a href="#how-to-use">Application</a>
+</p>
 
 ## Environment Setup
 
@@ -6,12 +28,11 @@ Set up your virtual environment with `pipenv` (faster and lighter):
 
 ```shell
 pip install pipenv
+pipenv install
 pipenv shell
-pip install -r requirements.txt
 ```
 
 Then every time you enter this repository, be sure to activate the virtual environment.
-
 
 ## YT Helper
 
@@ -83,12 +104,80 @@ Parameters explanation:
 1. `df` : raw dataframe haven't been preprocessed yet. (Just fetched by crawler)
 2. `emoji_to_word` : If you want to eliminate emoticons entirely, set to `False` . If you want to transfer emoticons to words, set to `True`. 
 
+
+## Models
 ### taskBasedModel
-`model_Dragons.dl_taskbased` is a function that takes youtubeID as input and returns sentiment ratios as output.
+
+#### V1
+
+`model.dl_taskbased` is a function that takes youtubeID as input and returns sentiment ratios as output.
 
 ```py
-from model_Dragons.dl_taskbased import dl_taskbased
+from model.dl_taskbased import dl_taskbased
 
-dl_taskbased(youtubeID = "OscqgBj1HCw") # output: (positive ratio, negative ratio) 
+pos, neg = dl_taskbased(youtubeID = "OscqgBj1HCw") # output: (positive ratio, negative ratio) 
 ```
 
+#### V2
+
+`model.dl_taskbased_V2` takes in a DataFrame (usually preprocessed by `yt_helper.comment.preprocessing`) as input and returns sentiment ratios as output.
+
+You can see the actual usage in `app.py`.
+
+```py
+import yt_helper
+from model.dl_taskbased import dl_taskbased_V2
+
+SORT_BY_POPULAR = 0
+SORT_BY_RECENT = 1
+
+sort = SORT_BY_POPULAR
+output = None  # do not write out files
+
+youtubeID = "OscqgBj1HCw"
+limit = 100
+emoji = True
+
+df = yt_helper.comment.fetch(youtubeID=youtubeID, limit=limit,
+                                 language='en', sort=sort, output=output)
+processed_dataset = yt_helper.comment.preprocessing(
+    df=df, emoji_to_word=emoji)
+
+pos, neg = dl_taskbased_V2(processed_dataset=processed_dataset)
+```
+
+### BERT-mini
+
+`model.l_bert_mini` uses BERT word embedding to help the training process. To get the positive and negative ratios, you can use the following code:
+
+```py
+import yt_helper
+from model.l_bert_mini import l_bert_V3
+
+SORT_BY_POPULAR = 0
+SORT_BY_RECENT = 1
+
+sort = SORT_BY_POPULAR
+output = None  # do not write out files
+
+youtubeID = "OscqgBj1HCw"
+limit = 100
+emoji = True
+
+df = yt_helper.comment.fetch(youtubeID=youtubeID, limit=limit,
+                                 language='en', sort=sort, output=output)
+processed_dataset = yt_helper.comment.preprocessing(
+    df=df, emoji_to_word=emoji)
+
+pos, neg = l_bert_V3(processed_dataset)
+```
+
+## Application
+
+To run the application locally, first make sure you have the environment set up right, and then simply start the `app.py` file by running:
+
+```py
+streamlit run app.py
+```
+
+You're good to go. 
