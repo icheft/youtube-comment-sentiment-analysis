@@ -1,3 +1,4 @@
+import streamlit as st
 import yt_helper
 from yt_helper.comment import SORT_BY_POPULAR, SORT_BY_RECENT
 import sys
@@ -17,7 +18,11 @@ sys.path.append("..")
 
 max_unique_tokens = 20000  # 取前20000個字來建立特徵維度
 max_DocLen = 200  # 限定文件長度度為前200字
-model = keras.models.load_model('model/taskBasedModel')
+
+
+@st.cache(allow_output_mutation=True)
+def load_model():
+    return keras.models.load_model('model/taskBasedModel')
 
 
 def yt_comment_preprocess(processed_dataset, emoji=True, raw=False):
@@ -51,7 +56,7 @@ def dl_taskbased_V2(processed_dataset: pd.DataFrame, emoji=True):
         processed_dataset, emoji, raw=False)
     # print("V2:")
     # print(test_data2.shape)
-
+    model = load_model()
     result = model.predict(test_data2)
     positive_rate = (result >= 0.5).sum() / result.shape[0]
     nagative_rate = (result < 0.5).sum() / result.shape[0]
@@ -66,7 +71,9 @@ def dl_taskbased(youtubeID, limit, emoji=True):
 
     df = yt_helper.comment.fetch(youtubeID=youtubeID, limit=limit,
                                  language='en', sort=sort, output=output)
+
     test_data2 = yt_comment_preprocess(df, emoji, raw=True)
+    model = load_model()
     result = model.predict(test_data2)
     positive_rate = (result >= 0.5).sum() / result.shape[0]
     nagative_rate = (result < 0.5).sum() / result.shape[0]

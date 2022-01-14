@@ -1,12 +1,19 @@
 import joblib
 import yt_helper
 from keras_bert import extract_embeddings
+import streamlit as st
 import pandas as pd
 import numpy as np
 import sys
 
 sys.path.append("..")
-task_model = joblib.load('model/BERTModel-mini')
+
+
+@st.cache
+def load_model():
+    return joblib.load('model/BERTModel-mini')
+
+
 pretrained_path = 'model/BERT-mini'
 
 
@@ -34,6 +41,7 @@ def predict_result(youtubeID):
                                  language='en', sort=sort, output=output)
 
     x_test = yt_comment_preprocess(df, limit)
+    task_model = load_model()
     y_pred = task_model.predict(x_test)
     positive_rate = (y_pred >= 0.5).sum() / y_pred.shape[0]
     nagative_rate = (y_pred < 0.5).sum() / y_pred.shape[0]
@@ -43,6 +51,7 @@ def predict_result(youtubeID):
 def l_bert_V3(processed_dataset: pd.DataFrame):
     # print('len: ', len(processed_dataset))
     x_test = yt_comment_preprocess(processed_dataset)
+    task_model = load_model()
     y_pred = task_model.predict(x_test)
     positive_rate = (y_pred >= 0.5).sum() / y_pred.shape[0]
     nagative_rate = (y_pred < 0.5).sum() / y_pred.shape[0]
