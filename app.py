@@ -124,8 +124,8 @@ Please note that this app is still in beta and may not work for all videos. **IF
         options['limit'] = df.shape[0]
         tmp_df = df.copy()
 
-        row4_spacer1, row4_1, row4_2, row4_3, row4_spacer2 = st.columns(
-            (.11, 1.066667, 1.066667, 1.066667, .11))
+        _, row4_1, _, row4_2, _, row4_3, _ = st.columns(
+            (.11, 1, .08, 1, .08,  1, .11))
 
         with row4_1:
 
@@ -177,8 +177,8 @@ Please note that this app is still in beta and may not work for all videos. **IF
                     """In this model, we adopt the fully connected network as model archistructure, and then use the IMDB dataset as training data. In the training process of binary sentimental classification (positive or negative), our model learns how to transfer texts to meaningful word embeddings. Therefore, we can then use the model to predict the sentiment of incoming youtube comments.""")
 
         with row4_3:
-            # TODO: Liu
-            st.markdown("##### BERT")
+            # DONE: Alison
+            st.markdown("##### BERT + SVM")
             pos, neg = l_bert_V3(tmp_df.drop(['label'], axis=1))
             # dl_taskbased_V2(processed_dataset=tmp_df.drop(
             #     ['label'], axis=1), emoji=options['emoji'])
@@ -194,22 +194,6 @@ Please note that this app is still in beta and may not work for all videos. **IF
             with intro_thirdmodel:
                 st.markdown(
                     """In this model, we use the IMDB movie reviews dataset as our training data. We then get the context-dependent embeddings from BERT. Hence, we can train the model only through the embeddings of [CLS]. In the training process of binary sentimental classification (positive or negative), our SVM model learns how to label each training data correctly.""")
-        # FIXME: redundant
-        # row5_spacer1, row5_1, row5_spacer2 = st.columns((.1, 3.2, .1))
-
-        # with row5_1:
-        #     st.write(tmp_df.head())
-
-        # row6_spacer1, row6_1, _, row6_2, row6_spacer1 = st.columns(
-        #     (.09, 1.2, .1, 1.2, .1))
-
-        # with row6_1:
-        #     st.download_button(
-        #         label=f"📓 Download (raw_data.csv)",
-        #         data=yt_helper.utils.convert_df(tmp_df),
-        #         file_name=f'raw_data.csv',
-        #         mime='text/csv',
-        #     )
 
 
 if __name__ == '__main__':
