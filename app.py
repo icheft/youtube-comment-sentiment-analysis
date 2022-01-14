@@ -23,7 +23,10 @@ st.set_page_config(
     menu_items={
         'Get Help': None,
         'Report a bug': None,
-        'About': '''An app prototype made by us for the purpose of analyzing the comments of YouTube videos.'''
+        'About': '''A prototype made by us for the purpose of analyzing the comments of YouTube videos.
+        
+You can checkout our repository [here](https://github.com/icheft/youtube-comment-sentiment-analysis).
+'''
     }
 )
 
@@ -83,7 +86,7 @@ def app():
         st.markdown(
             """Not sure the quality of a YouTube video? Let's find out using the comment section of the video. 
             
-Please note that this app is still in beta and may not work for all videos. **IF** you encounter an error while using the app, please report it to us. In the mean time, videos with massive views may be analyzed locally. Please check out the README for more information.
+Please note that this app is still in beta and may not work for all videos. **IF** you encounter an error while using the app, please report it to us. In the mean time, videos with massive views may be analyzed **locally**. Please check out [the repository](https://github.com/icheft/youtube-comment-sentiment-analysis) for more information.
             """)
         st.markdown(
             "**To begin, please enter the link to the YouTube video you wish to analyze** 👇")
@@ -101,7 +104,7 @@ Please note that this app is still in beta and may not work for all videos. **IF
         (.1, 1.6, .1, 1.6, .1))
     with row3_1:
         options['limit'] = int(st.number_input(
-            'Comment limit you wish to set (the lower the limit is, the faster the analysis will be)', value=100, min_value=1, step=1))
+            'Comment limit you wish to set (the lower the limit is, the faster the analysis will be)', value=100, min_value=1, max_value=5000, step=1))
     with row3_2:
         # options['neutral'] = st.checkbox('Include neutral comments')
         options['vote'] = st.checkbox('Include only comments with votes')
