@@ -112,16 +112,17 @@ Please note that this app is still in beta and may not work for all videos. **IF
 
     if raw_url:
         youtubeID = yt_helper.parser.url(raw_url)  # 0zM3nApSvMg
-        df = get_data(youtubeID=youtubeID,
-                      limit=options['limit'], options=options)
-        options['limit'] = df.shape[0]
-        tmp_df = df.copy()
 
         _, row4_1_pre, _ = st.columns((.1, 3.2, .1))
         with row4_1_pre:
             metadata = yt_helper.metadata.fetch(youtubeID=youtubeID)
             st.markdown(f"""### Analyzing *"{metadata.title}"*
 ##### {metadata.view_count:,d} views · {metadata.channel_name}""")
+
+        df = get_data(youtubeID=youtubeID,
+                      limit=options['limit'], options=options)
+        options['limit'] = df.shape[0]
+        tmp_df = df.copy()
 
         row4_spacer1, row4_1, row4_2, row4_3, row4_spacer2 = st.columns(
             (.11, 1.066667, 1.066667, 1.066667, .11))
