@@ -19,7 +19,8 @@
   <a href="#environment-setup">Environment Setup</a> •
   <a href="#yt-helper">YT Helper</a> •
   <a href="#models">Models</a> •
-  <a href="#application">Application</a>
+  <a href="#application">Application</a> •
+  <a href="#contributions">Contributions</a>
 </p>
 
 ## Environment Setup
@@ -181,3 +182,9 @@ streamlit run app.py
 ```
 
 You're good to go. 
+
+## Contributions
+
+We know that our models do not perform well on some videos due to our lack of labeled data. 
+
+If you have any suggestions or are willing to help, please let us know. We are open to any issues and pull requests.
