@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://share.streamlit.io/icheft/youtube-comment-sentiment-analysis/main/app.py"><img src="assets/img/youtube.png" alt="yt-logo" width="200"></a>
+  <a href="https://share.streamlit.io/icheft/youtube-comment-sentiment-analysis/main/app.py"><img src="assets/img/youtube.png" alt="yt-logo" width="75"></a>
   <br>
   YouTube Comment Sentiment Analysis
   <br>
