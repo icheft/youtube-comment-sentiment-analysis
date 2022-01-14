@@ -16,10 +16,10 @@
 </p>
 
 <p align="center">
-  <a href="#demo">Environment</a> •
-  <a href="#getting-started">YT Helper</a> •
-  <a href="#how-to-use">Models</a> •
-  <a href="#how-to-use">Application</a>
+  <a href="#environment-setup">Environment Setup</a> •
+  <a href="#yt-helper">YT Helper</a> •
+  <a href="#models">Models</a> •
+  <a href="#application">Application</a>
 </p>
 
 ## Environment Setup
